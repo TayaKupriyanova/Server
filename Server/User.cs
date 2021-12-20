@@ -23,15 +23,6 @@ namespace Server
             builder = new StringBuilder();
         }
 
-       /* public void setDataFromDatabase(int idd, string l, string p, byte[] prk, byte[] pubk)
-        {
-            publicKey = prk;
-            id = idd;
-            publicKey = pubk;
-            login = l;
-            hashPassw = p;
-        }*/
-
         public void Clear()
         {
             login = "";
@@ -54,12 +45,12 @@ namespace Server
         }
 
         // при авторизации мы переписываем значения из базы данных в usera
-        public void setData( string log, string pass, string privat, string pablic) 
+        public void setData( string log, string pass, string [] keys) 
         {
             login = log;
             hashPassw = pass;
-            privateKeyString = privat;
-            publicKeyString = pablic;
+            privateKeyString =keys[0];
+            publicKeyString = keys[1];
 
             setRSAkeys(); 
         }
@@ -71,7 +62,7 @@ namespace Server
             hashPassw = pass;
         }
 
-        public void setRSAkeys() // при авторизации мы получаем ключи в строковом формате, нужно преобразовать из в RSAParametrs
+        public void setRSAkeys() // при авторизации мы получаем ключи в строковом формате, нужно преобразовать в RSAParametrs
         {
             // спосите
         }
@@ -86,5 +77,9 @@ namespace Server
             pathFolder = Path.Join(@"D:\SecurityServer", login);
         }
 
+        public string[] getFiles() // возвращает список всех файлов
+        {
+            return Directory.GetFiles(pathFolder);
+        }
     }
 }

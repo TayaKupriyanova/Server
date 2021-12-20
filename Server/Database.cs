@@ -54,30 +54,40 @@ namespace Server
             sql = "SELECT login FROM Clients WHERE login = " + "'" + s + "'";
             cmd = new MySqlCommand(sql, con);
             MySqlDataReader reader = cmd.ExecuteReader();
+            bool flag = !reader.HasRows;
             reader.Dispose();
             cmd.Dispose();
-            return !reader.HasRows; // вернуть true, если не нашли
+            return flag; // вернуть true, если не нашли
         }
 
         //запрос на совпадение логина и пароля - при авторизации
         public bool IsDataRight(string login, string hash, MySqlConnection con)
         {
-            sql = "SELECT * FROM Clients WHERE login = " + "'" + login + "', AND passwordhash = " + "'" + hash + "'";
+            con.Open();
+            sql = "SELECT * FROM Clients WHERE login = " + "'" + login + "' AND passwordhash = " + "'" + hash + "'";
             cmd = new MySqlCommand(sql, con);
             MySqlDataReader reader = cmd.ExecuteReader();
+            bool flag = reader.HasRows;
             reader.Dispose();
             cmd.Dispose();
-            return reader.HasRows; // вернуть true, если нашли строку
+            return flag; // вернуть true, если нашли строку
         }
 
         //запрос на получение строки по логину и паролю - для получения ключей
-        public void GetKeys(string login, string hash, string privat, string pablic, MySqlConnection con)
+        public string[] GetKeys(string login, string hash, MySqlConnection con)
         {
-            sql = "SELECT privatekey, publickey FROM Clients WHERE login = " + "'" + login + "', AND passwordhash = " + "'" + hash + "'";
+            string[] keys = new string[2];
+            sql = "SELECT privatekey, publickey FROM Clients WHERE login = " + "'" + login + "' AND passwordhash = " + "'" + hash + "'";
             cmd = new MySqlCommand(sql, con);
             MySqlDataReader reader = cmd.ExecuteReader();
-            privat = reader.GetValue(0).ToString();
-            pablic = reader.GetValue(1).ToString();
+            if (reader.Read())
+            {
+                keys[0] = reader.GetValue(0).ToString();
+                keys[1] = reader.GetValue(1).ToString();
+            }
+            reader.Dispose();
+            cmd.Dispose();
+            return keys;
         }
 
         public void Close()

@@ -62,16 +62,18 @@ namespace Server
                         else if (request == protocol.requests.authorizetionRequest)
                         {
                             Console.WriteLine(DateTime.Now.ToShortTimeString() + ": " + request);
+                            connection.sendToClient(protocol.feedback.feedbackAu, client);
                             string result;
                             login = connection.getFromClient(client);
+                            connection.sendToClient("Логин получен", client);
                             passw = connection.getFromClient(client);
 
                             if (data.IsDataRight(login, passw, con)) // нашли пользователя с такими данными в БД
                             {
-                                string keyPr = "", keyPub = "";
-                                data.GetKeys(login, passw, keyPr, keyPub, con);
+                                string[] keys = new string[2];
+                                keys = data.GetKeys(login, passw, con);
 
-                                user.setData(login, passw,keyPr, keyPub);// заполняем объект юзера информацией про него
+                                user.setData(login, passw, keys);// заполняем объект юзера информацией про него
                                 user.getFolder();
                                 result = protocol.feedback.feedbackAuthorized; // формируем ответ об успехе
                             }
@@ -93,10 +95,10 @@ namespace Server
 
                              if ( data.isUnique(login, con)) // если пользователя с таким именем не сушествует
                              {
-                                user.setKeys();             // сгенерили ключи
-                                user.setData(login, passw);             // запоминаем юзера
-                                user.setFolder();           // создали папку, в которой будут храниться все подписанные файлы этим юзером
-                                data.InsertInto(user, con);      // внесли информацию про него в БД
+                                user.setKeys();                             // сгенерили ключи
+                                user.setData(login, passw);                 // запоминаем юзера
+                                user.setFolder();                           // создали папку, в которой будут храниться все подписанные файлы этим юзером
+                                data.InsertInto(user, con);                 // внесли информацию про него в БД
                                 result = protocol.feedback.feedbackRegistr; // формируем ответ об успехе
                              }
                             else
@@ -132,8 +134,30 @@ namespace Server
                             connection.sendToClient(user.publicKeyString, client); // отправляем открытый ключ
                             string f = connection.getFromClient(client);
                             connection.sendToClient(ds.signedFileName, client); // отправляем имя зашифрованного файла
-                             
+                        }
 
+                        // запрос на доступ к файлам
+                        else if (request == protocol.requests.getFilesRequest)
+                        {
+                           Console.WriteLine(DateTime.Now.ToShortTimeString() + ": " + request);
+                           connection.sendToClient(protocol.feedback.feedbackFiles, client);
+
+                            // получаем список файлов хранящихся в личной папке пользователя
+                            string[] fileList = user.getFiles();
+                            string answ;
+                            for( int i=0; i< fileList.Length; i++)      // отправляем весь этот ужас на клиента
+                            {
+                                connection.sendToClient(fileList[i], client);
+                                answ = connection.getFromClient(client); //разделитель сообщений, чтобы в одно не слипалось
+                            }
+                            connection.sendToClient("Последний файл", client);
+                        }
+
+                        // запрос на получение ключа
+                        else if (request == protocol.requests.getkeyRequest)
+                        {
+                            Console.WriteLine(DateTime.Now.ToShortTimeString() + ": " + request);
+                            connection.sendToClient(user.publicKeyString, client);
                         }
                         else Console.WriteLine("Что-то на татарском");
 
