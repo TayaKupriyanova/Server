@@ -9,101 +9,82 @@ namespace Server
 {
     internal class User
     {
-        public int id;
         public string login;
         public string hashPassw;
         public string privateKeyString;
         public string publicKeyString;
-        public byte[] publicKey; // ?? зачем они мне нужны вообще
-        public byte[] privateKey;// ?? зачем они мне нужны вообще
         public RSAParameters rsaPublicKeyInfo;
         public RSAParameters rsaPrivateKeyInfo;
-        StringBuilder builder;
         public string pathFolder;
-
+        
+        StringBuilder builder;
         public User()
         {
             builder = new StringBuilder();
         }
 
-        public void setDataFromDatabase(int idd, string l, string p, byte[] prk, byte[] pubk)
+       /* public void setDataFromDatabase(int idd, string l, string p, byte[] prk, byte[] pubk)
         {
             publicKey = prk;
             id = idd;
             publicKey = pubk;
             login = l;
             hashPassw = p;
-
-            //publicKeyString = builder.Append(Encoding.Unicode.GetString(publicKey)).ToString();
-            //privateKeyString = builder.Append(Encoding.Unicode.GetString(privateKey)).ToString();
-
-
-        }
-
-        /*public string getLogin()
-        {
-            return login;
-        }
-
-        public int getId()
-        {
-            return id;
-        }
-
-        public string getPrivate()
-        {
-            return privateKeyString;
-        }
-
-        public string getPublic()
-        {
-            return publicKeyString;
-        }
-
-        public string getPassword()
-        {
-            return hashPassw;
-        }
-
-        public void setPrivateKeyString()
-        {
-            privateKeyString = privateKey.ToString();
-        }
-
-        public void setPublicKeyString()
-        {
-            publicKeyString = publicKey.ToString();
         }*/
 
         public void Clear()
         {
-            id = -1;
             login = "";
             hashPassw = "";
         }
 
-        public void setKeys()
+        public void setKeys() // генерируем новую пару ключей 
         {
             RSA rsa = RSA.Create(); // генерирует пару ключей
-            //Save the public key information to an RSAParameters structure.  
+            // Вычисляем значения ключей и в формате RSAParamerts, и в формате string
+            
+            // RSAParamerts
             rsaPublicKeyInfo = rsa.ExportParameters(false);
             rsaPrivateKeyInfo = rsa.ExportParameters(true);
 
-            publicKey = rsa.ExportRSAPublicKey();
-            privateKey = rsa.ExportRSAPrivateKey();
-
-            publicKeyString =  Convert.ToBase64String(publicKey);
-            privateKeyString = Convert.ToBase64String(privateKey);
-
-            //publicKeyString = builder.Append(Encoding.UTF8.GetString(publicKey)).ToString();
-            //privateKeyString = builder.Append(Encoding.UTF8.GetString(privateKey)).ToString();
+            // string
+            publicKeyString =  Convert.ToBase64String(rsa.ExportRSAPublicKey());
+            privateKeyString = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
 
         }
 
-        public void setFolder()
+        // при авторизации мы переписываем значения из базы данных в usera
+        public void setData( string log, string pass, string privat, string pablic) 
+        {
+            login = log;
+            hashPassw = pass;
+            privateKeyString = privat;
+            publicKeyString = pablic;
+
+            setRSAkeys(); 
+        }
+
+        public void setData(string log, string pass) //при регистрации добавляем к пользователю только логин и пароль,
+                                                     //тк значения ключей уже записаны функцией setKeys
+        {
+            login = log;
+            hashPassw = pass;
+        }
+
+        public void setRSAkeys() // при авторизации мы получаем ключи в строковом формате, нужно преобразовать из в RSAParametrs
+        {
+            // спосите
+        }
+        public void setFolder() //при регистрации
         {
             pathFolder = Path.Join(@"D:\SecurityServer", login);
             System.IO.Directory.CreateDirectory(pathFolder);
         }
+
+        public void getFolder() // при авторизации
+        {
+            pathFolder = Path.Join(@"D:\SecurityServer", login);
+        }
+
     }
 }
