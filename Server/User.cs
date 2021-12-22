@@ -13,8 +13,8 @@ namespace Server
         public string hashPassw;
         public string privateKeyString;
         public string publicKeyString;
-        public RSAParameters rsaPublicKeyInfo;
-        public RSAParameters rsaPrivateKeyInfo;
+       //public RSAParameters rsaPublicKeyInfo;
+        //public RSAParameters rsaPrivateKeyInfo;
         public string pathFolder;
         
         StringBuilder builder;
@@ -32,15 +32,17 @@ namespace Server
         public void setKeys() // генерируем новую пару ключей 
         {
             RSA rsa = RSA.Create(); // генерирует пару ключей
-            // Вычисляем значения ключей и в формате RSAParamerts, и в формате string
-            
+                                    // Вычисляем значения ключей и в формате RSAParamerts, и в формате string
+
             // RSAParamerts
-            rsaPublicKeyInfo = rsa.ExportParameters(false);
-            rsaPrivateKeyInfo = rsa.ExportParameters(true);
+            publicKeyString = rsa.ToXmlString(false); // public
+            privateKeyString = rsa.ToXmlString(true); // private
+            //rsaPublicKeyInfo = rsa.ExportParameters(false); 
+            //rsaPrivateKeyInfo = rsa.ExportParameters(true);
 
             // string
-            publicKeyString =  Convert.ToBase64String(rsa.ExportRSAPublicKey());
-            privateKeyString = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
+            //publicKeyString =  Convert.ToBase64String(rsa.ExportRSAPublicKey());
+            //privateKeyString = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
 
         }
 

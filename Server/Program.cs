@@ -22,6 +22,7 @@ namespace Server
                 connection.bind();                          // связываем сокет с локальной точкой, по которой будем принимать данные
 
                 User user = new User();                     // задали юзера с которым будем работать
+                DigitalSign ds = new DigitalSign();         // создали пустой объект для хранения подписи
 
                 Database data = new Database();             // подключили БД
                 MySqlConnection con = data.conn;
@@ -128,12 +129,16 @@ namespace Server
                             // принять файл, который мы хотим подписать
                             string msg = connection.getFromClient(client);
 
-                            DigitalSign ds = new DigitalSign(user, msg);
+                            ds  = new DigitalSign(user, msg);
                             ds.Work(); // шифруем, в поле ds.sign вычислится шифр
                             
-                            connection.sendToClient(user.publicKeyString, client); // отправляем открытый ключ
+                            connection.sendToClient(ds.sign, client); // отправляем текст файла
                             string f = connection.getFromClient(client);
                             connection.sendToClient(ds.signedFileName, client); // отправляем имя зашифрованного файла
+                            f = connection.getFromClient(client);
+                            connection.sendToClient(ds.size.ToString(), client); // передаем размер использованного файла
+                            f = connection.getFromClient(client);
+                            connection.sendToClient(user.publicKeyString, client); // передаем размер использованного файла
                         }
 
                         // запрос на доступ к файлам
@@ -145,9 +150,10 @@ namespace Server
                             // получаем список файлов хранящихся в личной папке пользователя
                             string[] fileList = user.getFiles();
                             string answ;
+                            //string buffer;
                             for( int i=0; i< fileList.Length; i++)      // отправляем весь этот ужас на клиента
                             {
-                                connection.sendToClient(fileList[i], client);
+                                connection.sendToClient(fileList[i], client); // отправляем
                                 answ = connection.getFromClient(client); //разделитель сообщений, чтобы в одно не слипалось
                             }
                             connection.sendToClient("Последний файл", client);
@@ -159,6 +165,19 @@ namespace Server
                             Console.WriteLine(DateTime.Now.ToShortTimeString() + ": " + request);
                             connection.sendToClient(user.publicKeyString, client);
                         }
+
+                        // запрос на получение содержимого файла
+                        else if(request == protocol.requests.getTextRequest)
+                        {
+                            Console.WriteLine(DateTime.Now.ToShortTimeString() + ": " + request);
+                            //отправить ответ
+                            connection.sendToClient(protocol.feedback.feedbackText, client);
+                            // принять имя файлa
+                            string name = connection.getFromClient(client);
+                            string buffer = ds.readFile(name);// переписали содержимое файла в buffer
+                            connection.sendToClient(buffer, client);
+                        }
+
                         else Console.WriteLine("Что-то на татарском");
 
                     }

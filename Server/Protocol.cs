@@ -30,6 +30,7 @@ namespace Server
         public string logOutRequest;          // запрос на выход из профиля юзера
         public string getFilesRequest;        // запрос на просмотр ранее подписанных файлов
         public string getkeyRequest;        // запрос на получение открытого ключа
+        public string getTextRequest;         // запрос на получение текста файла
 
 
         public Request()
@@ -42,6 +43,7 @@ namespace Server
             logOutRequest = "Запрос на выход из профиля юзера";
             getFilesRequest = "Запрос на просмотр файлов";
             getkeyRequest = "Запрос на получение ключа";
+            getTextRequest = "Запрос на получение текста файла";
         }
 
     }
@@ -59,6 +61,7 @@ namespace Server
         public string feedbackLogOut;           // выход из профиля юзера прошел успешно
         public string feedbackFiles;            //запрос на просмотр файлов принят
         public string feedbackAu;               // запрос на авторизацию принят
+        public string feedbackText;             // запрос на получение содержимого файла принят
 
         public Feedback()
         {
@@ -72,6 +75,7 @@ namespace Server
             feedbackLogOut = "Запрос на выход из профиля юзера принят";
             feedbackFiles = "Запрос на просмотр файлов принят";
             feedbackAu = "Запрос на авторизацию принят";
+            feedbackText = "Запрос на получение содержимого файла принят";
         }
     }
 }

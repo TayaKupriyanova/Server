@@ -51,9 +51,11 @@ namespace Server
             client.Send(data);
         }
 
-        public void sendKeyToClient(byte[] key, Socket client)
+        public void sendBytesToClient(string msg, Socket client)
         {
-            client.Send(key);
+            byte[] data;
+            data = Convert.FromBase64String(msg);
+            client.Send(data);
         }
 
     }

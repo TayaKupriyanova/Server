@@ -13,8 +13,9 @@ namespace Server
         public string signedFileName; // имя зашифрованного файла
         public User user;
         public string sign;
-        //public RSA dsrsa;
+        public int size;
 
+        public DigitalSign() { }
         public DigitalSign(User u, string msg) // привязываем конкретного юзера к объекту конкретной подписи
         {
             user = new User();
@@ -30,11 +31,11 @@ namespace Server
             signedFileName = Path.Join(user.pathFolder, Path.GetFileName(@msgFileName) ); //"D:\Security_server\логин юзера\" + "имя файла юзера";
         }
 
-        // функция чтения файла юзера
-        public string readCLientFile()
+        // функция чтения файла
+        public string readFile(string filename)
         {
             string result = "";
-            using (StreamReader sr = new StreamReader(msgFileName, System.Text.Encoding.Default))
+            using (StreamReader sr = new StreamReader(filename, System.Text.Encoding.Default))
             {
                 string line;
                
@@ -60,14 +61,16 @@ namespace Server
         {
             StringBuilder builder = new StringBuilder();
             byte[] encryptedData;
-            byte[] msg = Encoding.Unicode.GetBytes(readCLientFile()); // преобразовали в байты клиентский файл
+            byte[] msg = Encoding.Unicode.GetBytes(readFile(msgFileName)); // преобразовали в байты клиентский файл
             RSACryptoServiceProvider provider = new RSACryptoServiceProvider(); // создали объект шифровальщика
-            provider.ImportParameters(user.rsaPrivateKeyInfo); // установили закрытый ключ 
-            encryptedData = provider.Encrypt(msg, false); // зашифровали закрытым ключом и получили шифр в байтах
+            provider.FromXmlString(user.privateKeyString); // установили закрытый ключ 
+            //provider.ImportParameters(user.rsaPrivateKeyInfo); 
+            HashAlgorithmName hashAlgorithmName = new HashAlgorithmName("MDA5");
+            encryptedData = provider.SignData(msg, new SHA256CryptoServiceProvider()); // зашифровали закрытым ключом и получили шифр в байтах
+            size = encryptedData.Length;
 
-            sign = BitConverter.ToString(encryptedData).Replace("-", " ");
-            //sign = builder.Append(Encoding.Unicode.GetString(encryptedData)).ToString(); // преобразовали в строку
-            //sign = encryptedData.ToString();
+            sign = Convert.ToBase64String(encryptedData); 
+
         }
 
 
@@ -75,9 +78,7 @@ namespace Server
         public void Work()
         {
             setSignedFileName(); // создать имя файла с подписью
-           // string userfile = readCLientFile();// прочитать файл юзера
-            Rsa(); // вызвать функцию рсы
-
+            Rsa(); // вызвать функцию рса
             createSign();// записать полученное в файл
         }
     }
