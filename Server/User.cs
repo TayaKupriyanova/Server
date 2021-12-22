@@ -13,8 +13,6 @@ namespace Server
         public string hashPassw;
         public string privateKeyString;
         public string publicKeyString;
-       //public RSAParameters rsaPublicKeyInfo;
-        //public RSAParameters rsaPrivateKeyInfo;
         public string pathFolder;
         
         StringBuilder builder;
@@ -32,18 +30,8 @@ namespace Server
         public void setKeys() // генерируем новую пару ключей 
         {
             RSA rsa = RSA.Create(); // генерирует пару ключей
-                                    // Вычисляем значения ключей и в формате RSAParamerts, и в формате string
-
-            // RSAParamerts
             publicKeyString = rsa.ToXmlString(false); // public
             privateKeyString = rsa.ToXmlString(true); // private
-            //rsaPublicKeyInfo = rsa.ExportParameters(false); 
-            //rsaPrivateKeyInfo = rsa.ExportParameters(true);
-
-            // string
-            //publicKeyString =  Convert.ToBase64String(rsa.ExportRSAPublicKey());
-            //privateKeyString = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
-
         }
 
         // при авторизации мы переписываем значения из базы данных в usera
@@ -53,8 +41,6 @@ namespace Server
             hashPassw = pass;
             privateKeyString =keys[0];
             publicKeyString = keys[1];
-
-            setRSAkeys(); 
         }
 
         public void setData(string log, string pass) //при регистрации добавляем к пользователю только логин и пароль,
@@ -62,11 +48,6 @@ namespace Server
         {
             login = log;
             hashPassw = pass;
-        }
-
-        public void setRSAkeys() // при авторизации мы получаем ключи в строковом формате, нужно преобразовать в RSAParametrs
-        {
-            // спосите
         }
         public void setFolder() //при регистрации
         {

@@ -64,9 +64,8 @@ namespace Server
             byte[] msg = Encoding.Unicode.GetBytes(readFile(msgFileName)); // преобразовали в байты клиентский файл
             RSACryptoServiceProvider provider = new RSACryptoServiceProvider(); // создали объект шифровальщика
             provider.FromXmlString(user.privateKeyString); // установили закрытый ключ 
-            //provider.ImportParameters(user.rsaPrivateKeyInfo); 
-            HashAlgorithmName hashAlgorithmName = new HashAlgorithmName("MDA5");
-            encryptedData = provider.SignData(msg, new SHA256CryptoServiceProvider()); // зашифровали закрытым ключом и получили шифр в байтах
+ 
+            encryptedData = provider.SignData(msg, new SHA256CryptoServiceProvider()); // подписали и захэшировали
             size = encryptedData.Length;
 
             sign = Convert.ToBase64String(encryptedData); 
